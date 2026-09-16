@@ -1,0 +1,19 @@
+# Laravel
+backend/.env
+backend/vendor/
+backend/node_modules/
+
+# Laravel storage
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
