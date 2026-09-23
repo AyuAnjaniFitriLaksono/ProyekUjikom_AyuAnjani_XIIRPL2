@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
-    use HasApitokens, Notifiable;
+    use HasApiTokens, Notifiable;
 
-    Protected $table = 'users';
+    protected $table = 'users';
 
     protected $fillable = [
         'name', 'email', 'password', 'role', 'no_hp', 'alamat', 'foto_profile'
@@ -22,22 +22,18 @@ class User extends Authenticatable
     ];
 
     protected function casts(): array
-    {
+    {   
         return [
-            'password' => 'hashed',
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed', // Laravel otomatis meng-hash teks apapun yang masuk ke properti password!
         ];
     }
 
-    public function peminjaman(): HasMany {
+    public function peminjaman () : HasMany {
         return $this->hasMany(Peminjaman::class);
     }
 
-    public function logAktivitas(): HasMany {
-        return $this->hasMany(Logaktivitas::class);
-    }
-
-    public function scopeTersedia($query)
-    {
-        return $query->where('stok', '>', 0)->where('status_kondisi', 'Baik');
+    public function logAktivitas (): HasMany {
+        return $this->hasMany(LogAktivitas::class);
     }
 }
