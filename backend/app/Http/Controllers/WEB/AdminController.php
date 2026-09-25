@@ -202,7 +202,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'nama_alat' => 'required|string|max:255',
-            'kategori_id' => 'required|exists:kategoris,id',
+            'kategori_id' => 'required|exists:kategori,id',
             'stok' => 'required|integer|min:0',
             'status_kondisi' => 'required|string|max:100',
             'deskripsi' => 'nullable|string',
@@ -260,7 +260,7 @@ class AdminController extends Controller
 
         $request->validate([
             'nama_alat' => 'required|string|max:255',
-            'kategori_id' => 'required|exists:kategoris,id',
+            'kategori_id' => 'required|exists:kategori,id',
             'stok' => 'required|integer|min:0',
             'status_kondisi' => 'required|string|max:100',
             'deskripsi' => 'nullable|string',
@@ -551,7 +551,7 @@ class AdminController extends Controller
     {
         $search = $request->input('search');
 
-        $kategoris = Kategori::when($search, function ($query, $search) {
+        $kategori = Kategori::when($search, function ($query, $search) {
             return $query->where(
                 'nama_kategori',
                 'like',
@@ -564,7 +564,7 @@ class AdminController extends Controller
 
         return view(
             'admin.kategori.index',
-            compact('kategoris', 'search')
+            compact('kategori', 'search')
         );
     }
 
@@ -579,7 +579,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'nama_kategori' =>
-                'required|string|max:255|unique:kategoris,nama_kategori',
+                'required|string|max:255|unique:kategori,nama_kategori',
         ]);
 
         $kategori = Kategori::create([
@@ -620,7 +620,7 @@ class AdminController extends Controller
 
         $request->validate([
             'nama_kategori' =>
-                'required|string|max:255|unique:kategoris,nama_kategori,' . $id,
+                'required|string|max:255|unique:kategori,nama_kategori,' . $id,
         ]);
 
         $kategori->update([
@@ -649,7 +649,7 @@ class AdminController extends Controller
         $kategori = Kategori::findOrFail($id);
 
         // Cek apakah kategori masih digunakan oleh alat
-        if ($kategori->alats()->count() > 0) {
+        if ($kategori->alat()->count() > 0) {
             return redirect()
                 ->route('admin.kategori.index')
                 ->with(
@@ -771,7 +771,7 @@ class AdminController extends Controller
                 'required|array',
 
             'alat_id.*' =>
-                'exists:alats,id',
+                'exists:alat,id',
 
             'jumlah' =>
                 'required|array',

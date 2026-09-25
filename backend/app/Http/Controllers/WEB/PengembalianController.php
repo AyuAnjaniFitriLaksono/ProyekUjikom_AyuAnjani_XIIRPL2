@@ -4,6 +4,7 @@ namespace App\Http\Controllers\WEB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alat;
+use App\Models\User;
 use App\Models\Peminjaman;
 use App\Models\Pengembalian;
 use Illuminate\Http\Request;
@@ -200,9 +201,13 @@ class PengembalianController extends Controller
             'petugas'
         ])->findOrFail($id);
 
+        $peminjamans = Peminjaman::with('user')->get();
+
+        $petugas = User::where('role', 'petugas')->get();
+
         return view(
             'admin.pengembalian.edit',
-            compact('pengembalian')
+            compact('pengembalian', 'peminjamans', 'petugas')
         );
     }
 
@@ -244,7 +249,7 @@ class PengembalianController extends Controller
 
                 $pengembalian = Pengembalian::findOrFail($id);
 
-                $peminjaman = Peminjaman::with('detailpinjam')
+                $peminjaman = Peminjaman::with('detailpinjams')
                     ->lockForUpdate()
                     ->findOrFail(
                         $pengembalian->peminjaman_id
@@ -257,7 +262,7 @@ class PengembalianController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                foreach ($peminjaman->detailpinjam as $detail) {
+                foreach ($peminjaman->detailpinjams as $detail) {
 
                     $alat = Alat::lockForUpdate()
                         ->findOrFail($detail->alat_id);

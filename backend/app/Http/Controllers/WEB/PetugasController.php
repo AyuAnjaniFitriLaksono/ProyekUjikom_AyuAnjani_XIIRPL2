@@ -236,7 +236,8 @@ class PetugasController extends Controller
                 ->back()
                 ->with(
                     'error',
-                    'Terjadi kesalahan: ' . $e->getMessage()
+                    'Terjadi kesalahan: ' .
+                    $e->getMessage()
                 );
         }
     }
@@ -294,6 +295,13 @@ class PetugasController extends Controller
     // =========================================================
 
     // Menampilkan pemantauan pengembalian
+    //
+    // Hanya menampilkan peminjaman yang:
+    // - masih dipinjam
+    // - terlambat
+    //
+    // Jika status sudah dikembalikan,
+    // maka tidak akan muncul lagi di pemantauan.
     public function indexPengembalian(Request $request)
     {
         $search = $request->input('search');
@@ -305,8 +313,7 @@ class PetugasController extends Controller
         ])
         ->whereIn('status', [
             'dipinjam',
-            'telat',
-            'dikembalikan'
+            'telat'
         ])
         ->when($search, function ($query, $search) {
 
@@ -334,7 +341,20 @@ class PetugasController extends Controller
     }
 
 
+    // =========================================================
+    // PROSES PENGEMBALIAN
+    // =========================================================
+
     // Memproses pengembalian
+    //
+    // Status yang dapat diproses:
+    // - dipinjam
+    // - telat
+    //
+    // Setelah diproses:
+    // - data pengembalian dibuat
+    // - status menjadi dikembalikan
+    // - stok alat dikembalikan
     public function prosesPengembalian(
         Request $request,
         $peminjamanId
@@ -357,7 +377,10 @@ class PetugasController extends Controller
             ->findOrFail($peminjamanId);
 
 
-            // Pastikan peminjaman masih dipinjam atau telat
+            // =================================================
+            // PASTIKAN STATUS MASIH BISA DIPROSES
+            // =================================================
+
             if (!in_array(
                 $peminjaman->status,
                 ['dipinjam', 'telat']
@@ -369,26 +392,47 @@ class PetugasController extends Controller
                     ->back()
                     ->with(
                         'error',
-                        'Peminjaman ini sudah dikembalikan atau statusnya tidak dapat diproses.'
+                        'Peminjaman ini sudah dikembalikan atau tidak dapat diproses.'
                     );
             }
 
 
-            // Pastikan belum ada data pengembalian
+            // =================================================
+            // CEK APAKAH PENGEMBALIAN SUDAH ADA
+            // =================================================
+
             if ($peminjaman->pengembalian) {
 
-                DB::rollBack();
+                /*
+                 * Jika data pengembalian sudah ada,
+                 * jangan membuat data pengembalian baru.
+                 *
+                 * Jangan menambah stok lagi karena
+                 * stok mungkin sudah pernah dikembalikan.
+                 *
+                 * Cukup ubah status menjadi dikembalikan
+                 * agar data peminjaman kembali sinkron.
+                 */
+
+                $peminjaman->update([
+                    'status' => 'dikembalikan'
+                ]);
+
+                DB::commit();
 
                 return redirect()
                     ->back()
                     ->with(
-                        'error',
-                        'Pengembalian untuk peminjaman ini sudah diproses.'
+                        'success',
+                        'Pengembalian sudah tercatat. Status peminjaman diperbarui menjadi dikembalikan.'
                     );
             }
 
 
-            // Simpan data pengembalian
+            // =================================================
+            // SIMPAN DATA PENGEMBALIAN
+            // =================================================
+
             Pengembalian::create([
                 'peminjaman_id'   => $peminjaman->id,
                 'tgl_kembali'     => now(),
@@ -398,13 +442,19 @@ class PetugasController extends Controller
             ]);
 
 
-            // Ubah status menjadi dikembalikan
+            // =================================================
+            // UBAH STATUS MENJADI DIKEMBALIKAN
+            // =================================================
+
             $peminjaman->update([
                 'status' => 'dikembalikan'
             ]);
 
 
-            // Kembalikan stok alat
+            // =================================================
+            // KEMBALIKAN STOK ALAT
+            // =================================================
+
             foreach ($peminjaman->detailPinjams as $detail) {
 
                 $alat = Alat::findOrFail($detail->alat_id);
@@ -549,6 +599,10 @@ class PetugasController extends Controller
         );
     }
 
+
+    // =========================================================
+    // CETAK LAPORAN
+    // =========================================================
 
     // Menampilkan halaman khusus cetak laporan
     public function cetakLaporan(Request $request)

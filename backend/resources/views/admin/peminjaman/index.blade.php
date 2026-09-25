@@ -311,8 +311,6 @@
     {{ $peminjamans->links() }}
 
 </div>
-```
-
 </div>
 
 @endsection
