@@ -23,7 +23,7 @@
         </div>
 
 
-        {{-- ERROR --}}
+        {{-- ERROR VALIDASI --}}
         @if ($errors->any())
 
             <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-5">
@@ -34,11 +34,25 @@
 
                     @foreach ($errors->all() as $error)
 
-                        <li>{{ $error }}</li>
+                        <li>
+                            {{ $error }}
+                        </li>
 
                     @endforeach
 
                 </ul>
+
+            </div>
+
+        @endif
+
+
+        {{-- ERROR SESSION --}}
+        @if (session('error'))
+
+            <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-5">
+
+                {{ session('error') }}
 
             </div>
 
@@ -55,7 +69,10 @@
             @method('PUT')
 
 
+            {{-- ========================================================= --}}
             {{-- PEMINJAMAN --}}
+            {{-- ========================================================= --}}
+
             <div class="mb-5">
 
                 <label
@@ -94,7 +111,10 @@
             </div>
 
 
-            {{-- TANGGAL --}}
+            {{-- ========================================================= --}}
+            {{-- TANGGAL KEMBALI --}}
+            {{-- ========================================================= --}}
+
             <div class="mb-5">
 
                 <label
@@ -116,7 +136,10 @@
             </div>
 
 
-            {{-- KONDISI --}}
+            {{-- ========================================================= --}}
+            {{-- KONDISI KEMBALI --}}
+            {{-- ========================================================= --}}
+
             <div class="mb-5">
 
                 <label
@@ -159,63 +182,67 @@
             </div>
 
 
-            {{-- DENDA --}}
+            {{-- ========================================================= --}}
+            {{-- DENDA KERUSAKAN --}}
+            {{-- ========================================================= --}}
+
             <div class="mb-5">
 
                 <label
-                    for="denda"
+                    for="denda_kerusakan"
                     class="block font-medium text-gray-700 mb-2"
                 >
-                    Total Denda
+                    Denda Kerusakan
                 </label>
 
                 <input
                     type="number"
-                    name="denda"
-                    id="denda"
+                    name="denda_kerusakan"
+                    id="denda_kerusakan"
                     class="w-full border border-gray-300 rounded-lg px-4 py-2"
-                    value="{{ old('denda', $pengembalian->denda) }}"
+                    value="{{ old('denda_kerusakan', 0) }}"
                     min="0"
+                    step="1000"
                     required
                 >
+
+                <p class="text-sm text-gray-500 mt-1">
+                    Masukkan denda kerusakan secara manual.
+                    Isi Rp0 jika tidak ada kerusakan.
+                </p>
 
             </div>
 
 
+            {{-- ========================================================= --}}
             {{-- PETUGAS --}}
+            {{-- ========================================================= --}}
+
             <div class="mb-6">
 
                 <label
-                    for="petugas_id"
                     class="block font-medium text-gray-700 mb-2"
                 >
                     Petugas
                 </label>
 
-                <select
-                    name="petugas_id"
-                    id="petugas_id"
-                    class="w-full border border-gray-300 rounded-lg px-4 py-2"
-                    required
-                >
+                <div class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 text-gray-700">
 
-                    @foreach ($petugas as $user)
+                    {{ auth()->user()->name }}
 
-                        <option
-                            value="{{ $user->id }}"
-                            {{ old('petugas_id', $pengembalian->petugas_id) == $user->id ? 'selected' : '' }}
-                        >
-                            {{ $user->name }}
-                        </option>
+                </div>
 
-                    @endforeach
-
-                </select>
+                <p class="text-sm text-gray-500 mt-1">
+                    Petugas otomatis mengikuti akun yang sedang login.
+                </p>
 
             </div>
 
 
+            {{-- ========================================================= --}}
             {{-- BUTTON --}}
+            {{-- ========================================================= --}}
+
             <div class="flex gap-3">
 
                 <button

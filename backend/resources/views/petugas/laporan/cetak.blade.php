@@ -34,14 +34,14 @@
 
 <table>
     <thead>
-        <tr>
-            <th width="5%" class="text-center">No</th>
-            <th width="20%">Peminjam</th>
-            <th width="15%">Tgl Pinjam</th>
-            <th width="15%">Rencana Kembali</th>
-            <th width="15%">Status</th>
-            <th width="20%">Detail Alat</th>
-            <th width="10%">Denda</th>
+        <tr class="bg-gray-800 text-white text-sm">
+            <th class="py-3 px-4 border-b border-gray-700">No</th>
+            <th class="py-3 px-4 border-b border-gray-700">Peminjam</th>
+            <th class="py-3 px-4 border-b border-gray-700">Tgl Pinjam</th>
+            <th class="py-3 px-4 border-b border-gray-700">Rencana Kembali</th>
+            <th class="py-3 px-4 border-b border-gray-700">Status</th>
+            <th class="py-3 px-4 border-b border-gray-700">Detail Alat</th>
+            <th class="py-3 px-4 border-b border-gray-700">Denda</th>
         </tr>
     </thead>
     <tbody>

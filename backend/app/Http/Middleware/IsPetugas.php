@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class IsPetugasOrAdmin
+class IsPetugas
 {
     public function handle(Request $request, Closure $next): Response
     {
@@ -14,7 +14,7 @@ class IsPetugasOrAdmin
             return redirect()->route('login');
         }
 
-        if (!in_array(auth()->user()->role, ['admin', 'petugas'])) {
+        if (auth()->user()->role !== 'petugas') {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 

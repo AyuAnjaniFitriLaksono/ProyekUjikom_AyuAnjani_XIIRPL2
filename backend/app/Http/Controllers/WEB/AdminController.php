@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\LogAktivitas;
 use App\Models\Peminjaman;
 use App\Models\DetailPinjam;
+use App\Models\Pengembalian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -19,15 +20,36 @@ class AdminController extends Controller
     // DASHBOARD ADMIN
     // =========================================================
 
-    // Menampilkan Dashboard Admin & Log Aktivitas
+    // Menampilkan Dashboard Admin
     public function index()
     {
+        $totalUser = User::count();
+
+        $totalKategori = Kategori::count();
+
+        $totalAlat = Alat::count();
+
+        $totalPeminjaman = Peminjaman::count();
+
+        $totalPengembalian = Pengembalian::count();
+
+        // Hanya mengambil 5 aktivitas terbaru untuk preview Dashboard
         $logs = LogAktivitas::with('user')
             ->latest()
-            ->take(10)
+            ->take(5)
             ->get();
 
-        return view('admin.dashboard', compact('logs'));
+        return view(
+            'admin.dashboard',
+            compact(
+                'totalUser',
+                'totalKategori',
+                'totalAlat',
+                'totalPeminjaman',
+                'totalPengembalian',
+                'logs'
+            )
+        );
     }
 
 
@@ -40,7 +62,10 @@ class AdminController extends Controller
     {
         $user = auth()->user();
 
-        return view('admin.profile', compact('user'));
+        return view(
+            'admin.profile',
+            compact('user')
+        );
     }
 
     // Mengupload foto profil admin
@@ -85,7 +110,10 @@ class AdminController extends Controller
 
         return redirect()
             ->route('admin.profile')
-            ->with('success', 'Foto profil berhasil diperbarui.');
+            ->with(
+                'success',
+                'Foto profil berhasil diperbarui.'
+            );
     }
 
     // Mengubah data profil admin
@@ -109,48 +137,10 @@ class AdminController extends Controller
 
         return redirect()
             ->route('admin.profile')
-            ->with('success', 'Profil berhasil diperbarui.');
-    }
-
-
-    // =========================================================
-    // KELOLA LOG AKTIVITAS
-    // =========================================================
-
-    // Menampilkan daftar log aktivitas
-    public function indexLogAktivitas(Request $request)
-    {
-        $search = $request->input('search');
-
-        $logs = LogAktivitas::with('user')
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
-
-                    // Cari berdasarkan aktivitas
-                    $q->where(
-                        'aktivitas',
-                        'like',
-                        "%{$search}%"
-                    )
-
-                    // Cari berdasarkan nama pengguna
-                    ->orWhereHas('user', function ($user) use ($search) {
-                        $user->where(
-                            'name',
-                            'like',
-                            "%{$search}%"
-                        );
-                    });
-                });
-            })
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
-
-        return view(
-            'admin.logaktivitas.index',
-            compact('logs', 'search')
-        );
+            ->with(
+                'success',
+                'Profil berhasil diperbarui.'
+            );
     }
 
 
@@ -165,16 +155,26 @@ class AdminController extends Controller
 
         $alats = Alat::with('kategori')
             ->when($search, function ($query, $search) {
-                return $query
-                    ->where('nama_alat', 'like', "%{$search}%")
-                    ->orWhere('status_kondisi', 'like', "%{$search}%")
-                    ->orWhereHas('kategori', function ($q) use ($search) {
-                        $q->where(
+                return $query->where(function ($q) use ($search) {
+
+                    $q->where(
+                        'nama_alat',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere(
+                        'status_kondisi',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhereHas('kategori', function ($kategori) use ($search) {
+                        $kategori->where(
                             'nama_kategori',
                             'like',
                             "%{$search}%"
                         );
                     });
+                });
             })
             ->latest()
             ->paginate(10)
@@ -213,12 +213,19 @@ class AdminController extends Controller
 
         // Handle upload gambar jika ada
         if ($request->hasFile('gambar')) {
+
+            $folder = public_path('storage/alat');
+
+            if (!file_exists($folder)) {
+                mkdir($folder, 0755, true);
+            }
+
             $file = $request->file('gambar');
 
             $filename = time() . '_' . $file->getClientOriginalName();
 
             $file->move(
-                public_path('storage/alat'),
+                $folder,
                 $filename
             );
 
@@ -245,6 +252,7 @@ class AdminController extends Controller
     public function editAlat($id)
     {
         $alat = Alat::findOrFail($id);
+
         $kategoris = Kategori::all();
 
         return view(
@@ -280,12 +288,18 @@ class AdminController extends Controller
                 unlink(public_path($alat->gambar));
             }
 
+            $folder = public_path('storage/alat');
+
+            if (!file_exists($folder)) {
+                mkdir($folder, 0755, true);
+            }
+
             $file = $request->file('gambar');
 
             $filename = time() . '_' . $file->getClientOriginalName();
 
             $file->move(
-                public_path('storage/alat'),
+                $folder,
                 $filename
             );
 
@@ -350,10 +364,24 @@ class AdminController extends Controller
         $search = $request->input('search');
 
         $users = User::when($search, function ($query, $search) {
-            return $query
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere('role', 'like', "%{$search}%");
+            return $query->where(function ($q) use ($search) {
+
+                $q->where(
+                    'name',
+                    'like',
+                    "%{$search}%"
+                )
+                ->orWhere(
+                    'email',
+                    'like',
+                    "%{$search}%"
+                )
+                ->orWhere(
+                    'role',
+                    'like',
+                    "%{$search}%"
+                );
+            });
         })
             ->latest()
             ->paginate(10)
@@ -395,24 +423,21 @@ class AdminController extends Controller
         // Upload foto profil jika ada
         if ($request->hasFile('foto_profile')) {
 
-            // Folder penyimpanan
             $folder = public_path('storage/profil');
 
-            // Buat folder jika belum ada
             if (!file_exists($folder)) {
                 mkdir($folder, 0755, true);
             }
 
-            // Ambil file
             $file = $request->file('foto_profile');
 
-            // Buat nama file unik
             $filename = time() . '_' . $file->getClientOriginalName();
 
-            // Simpan file
-            $file->move($folder, $filename);
+            $file->move(
+                $folder,
+                $filename
+            );
 
-            // Simpan lokasi foto ke database
             $data['foto_profile'] = 'storage/profil/' . $filename;
         }
 
@@ -481,23 +506,21 @@ class AdminController extends Controller
                 unlink(public_path($user->foto_profile));
             }
 
-            // Pastikan folder tersedia
             $folder = public_path('storage/profil');
 
             if (!file_exists($folder)) {
                 mkdir($folder, 0755, true);
             }
 
-            // Ambil file foto baru
             $file = $request->file('foto_profile');
 
-            // Buat nama file unik
             $filename = time() . '_' . $file->getClientOriginalName();
 
-            // Simpan foto
-            $file->move($folder, $filename);
+            $file->move(
+                $folder,
+                $filename
+            );
 
-            // Simpan lokasi foto ke database
             $data['foto_profile'] = 'storage/profil/' . $filename;
         }
 
@@ -835,6 +858,12 @@ class AdminController extends Controller
 
             DB::commit();
 
+            // Catat log aktivitas setelah transaksi berhasil
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Menambahkan peminjaman',
+            ]);
+
             return redirect()
                 ->route(
                     'admin.peminjaman.index'
@@ -864,7 +893,7 @@ class AdminController extends Controller
     ) {
         $request->validate([
             'status' =>
-                'required|in:diajukan,dipinjam,selesai,telat',
+                'required|in:diajukan,dipinjam,dikembalikan,telat',
         ]);
 
         $peminjaman =
@@ -872,6 +901,14 @@ class AdminController extends Controller
 
         $peminjaman->update([
             'status' =>
+                $request->status,
+        ]);
+
+        // Catat log aktivitas
+        LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' =>
+                'Memperbarui status peminjaman menjadi: ' .
                 $request->status,
         ]);
 
@@ -891,11 +928,35 @@ class AdminController extends Controller
         $peminjaman =
             Peminjaman::findOrFail($id);
 
+        // Hanya peminjaman yang sudah dikembalikan yang boleh dihapus
+        if ($peminjaman->status !== 'dikembalikan') {
+            return redirect()
+                ->route('admin.peminjaman.index')
+                ->with(
+                    'error',
+                    'Peminjaman yang belum dikembalikan tidak dapat dihapus.'
+                );
+        }
+
+        // Simpan nama peminjam untuk log
+        $namaPeminjam =
+            $peminjaman->user->name ?? 'User';
+
+        // Hapus detail peminjaman
         $peminjaman
             ->detailPinjams()
             ->delete();
 
+        // Hapus data peminjaman
         $peminjaman->delete();
+
+        // Catat log aktivitas
+        LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' =>
+                'Menghapus peminjaman dari: ' .
+                $namaPeminjam,
+        ]);
 
         return redirect()
             ->route(

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\WEB\AdminController;
+use App\Http\Controllers\WEB\LogAktivitasController;
 use App\Http\Controllers\WEB\PetugasController;
 use App\Http\Controllers\WEB\PeminjamController;
 use App\Http\Controllers\WEB\AuthController;
@@ -115,9 +116,6 @@ Route::middleware(['auth', 'role.admin'])
         Route::post('/peminjaman', [AdminController::class, 'storePeminjaman'])
             ->name('peminjaman.store');
 
-        Route::put('/peminjaman/{id}', [AdminController::class, 'updatePeminjaman'])
-            ->name('peminjaman.update');
-
         Route::put('/peminjaman/{id}/status', [AdminController::class, 'updateStatusPeminjaman'])
             ->name('peminjaman.updateStatus');
 
@@ -148,7 +146,7 @@ Route::middleware(['auth', 'role.admin'])
 
         // ==================== LOG AKTIVITAS ====================
 
-        Route::get('/log-aktivitas', [AdminController::class, 'indexLogAktivitas'])
+        Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])
             ->name('logaktivitas.index');
     });
 
