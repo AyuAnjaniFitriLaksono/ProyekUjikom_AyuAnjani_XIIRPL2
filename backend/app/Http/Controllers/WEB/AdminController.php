@@ -544,6 +544,16 @@ class AdminController extends Controller
     // 6. Menghapus user
     public function destroyUser($id)
     {
+        // Admin tidak boleh menghapus akun sendiri
+        if ((int) $id === (int) auth()->id()) {
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Akun admin yang sedang digunakan tidak dapat dihapus.'
+            );
+        }
+
         $user = User::findOrFail($id);
 
         $namaUser = $user->name;

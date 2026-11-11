@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Riwayat Peminjaman')
@@ -22,6 +23,12 @@
 @if(session('success'))
     <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-lg shadow-sm text-sm">
         {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg shadow-sm text-sm">
+        {{ session('error') }}
     </div>
 @endif
 
@@ -67,6 +74,11 @@
 
                     <th class="py-4 px-4 border-b border-gray-700 font-semibold text-center whitespace-nowrap">
                         Status
+                    </th>
+
+                    {{-- Kolom Aksi --}}
+                    <th class="py-4 px-4 border-b border-gray-700 font-semibold text-center whitespace-nowrap">
+                        Aksi
                     </th>
 
                 </tr>
@@ -183,6 +195,45 @@
 
                         </td>
 
+                        {{-- Aksi Pengembalian --}}
+                        <td class="py-4 px-4 border-b border-gray-200 text-center whitespace-nowrap">
+
+                            @if(in_array($item->status, ['dipinjam', 'telat']))
+
+                                @if($item->status_pengajuan_kembali === 'belum_diajukan')
+
+                                    <form action="{{ route('peminjam.pengembalian.ajukan', $item->id) }}" method="POST">
+                                        @csrf
+
+                                        <button
+                                            type="submit"
+                                            onclick="return confirm('Yakin ingin mengajukan pengembalian alat ini?')"
+                                            class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold"
+                                        >
+                                            Ajukan Pengembalian
+                                        </button>
+                                    </form>
+
+                                @elseif($item->status_pengajuan_kembali === 'menunggu')
+
+                                    <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded">
+                                        Menunggu Konfirmasi Petugas
+                                    </span>
+
+                                @else
+
+                                    <span class="text-gray-400">-</span>
+
+                                @endif
+
+                            @else
+
+                                <span class="text-gray-400">-</span>
+
+                            @endif
+
+                        </td>
+
                     </tr>
 
                 @empty
@@ -190,7 +241,7 @@
                     <tr>
 
                         <td
-                            colspan="5"
+                            colspan="6"
                             class="py-10 px-4 text-center text-gray-500"
                         >
                             Belum ada riwayat peminjaman.

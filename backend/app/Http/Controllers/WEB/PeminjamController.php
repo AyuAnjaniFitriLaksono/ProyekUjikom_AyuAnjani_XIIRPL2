@@ -192,4 +192,34 @@ class PeminjamController extends Controller
             compact('peminjamans')
         );
     }
+
+    // =========================================================
+    // AJUKAN PENGEMBALIAN
+    // =========================================================
+
+    public function ajukanPengembalian($id)
+    {
+        $peminjaman = Peminjaman::where('user_id', auth()->id())
+            ->findOrFail($id);
+
+        if (!in_array($peminjaman->status, ['dipinjam', 'telat'])) {
+            return back()->with('error', 'Peminjaman ini belum bisa diajukan pengembaliannya.');
+        }
+
+        if ($peminjaman->status_pengajuan_kembali !== 'belum_diajukan') {
+            return back()->with('error', 'Pengembalian sudah pernah diajukan.');
+        }
+
+        if ($peminjaman->pengembalian()->exists()) {
+            return back()->with('error', 'Data pengembalian sudah tersedia.');
+        }
+
+        $peminjaman->update([
+            'status_pengajuan_kembali' => 'menunggu',
+        ]);
+
+        return redirect()
+            ->route('peminjam.riwayat')
+            ->with('success', 'Pengajuan pengembalian berhasil dikirim. Silakan menunggu konfirmasi petugas.');
+    }
 }

@@ -315,6 +315,7 @@ class PetugasController extends Controller
             'dipinjam',
             'telat'
         ])
+        ->where('status_pengajuan_kembali', 'menunggu')
         ->when($search, function ($query, $search) {
 
             return $query->whereHas('user', function ($q) use ($search) {
@@ -393,6 +394,23 @@ class PetugasController extends Controller
                     ->with(
                         'error',
                         'Peminjaman ini sudah dikembalikan atau tidak dapat diproses.'
+                    );
+            }
+
+
+            // =================================================
+            // TAMBAHAN: PASTIKAN PEMINJAM SUDAH MENGAJUKAN
+            // =================================================
+
+            if ($peminjaman->status_pengajuan_kembali !== 'menunggu') {
+
+                DB::rollBack();
+
+                return redirect()
+                    ->back()
+                    ->with(
+                        'error',
+                        'Peminjam belum mengajukan pengembalian. Pengembalian tidak dapat diproses.'
                     );
             }
 

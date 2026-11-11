@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Kelola User - Panel Admin')
@@ -12,13 +13,17 @@
         </div>
     @endif
 
+    {{-- NOTIFIKASI ERROR --}}
+    @if(session('error'))
+        <div class="mb-5 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg shadow-sm text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
 
     {{-- CARD UTAMA --}}
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
 
-        {{-- ====================================================== --}}
         {{-- HEADER CARD --}}
-        {{-- ====================================================== --}}
         <div class="px-5 py-4 border-b border-gray-200 bg-gray-50">
 
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -29,7 +34,6 @@
                         Daftar Pengguna Sistem
                     </h3>
                 </div>
-
 
                 {{-- SEARCH + TAMBAH --}}
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
@@ -57,7 +61,6 @@
                         </button>
 
                         @if(request('search'))
-
                             <a
                                 href="{{ route('admin.user.index') }}"
                                 class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-2 text-sm font-medium rounded-lg flex items-center justify-center transition"
@@ -65,11 +68,9 @@
                             >
                                 Reset
                             </a>
-
                         @endif
 
                     </form>
-
 
                     {{-- TOMBOL TAMBAH USER --}}
                     <a
@@ -85,17 +86,13 @@
 
         </div>
 
-
-        {{-- ====================================================== --}}
         {{-- TABEL USER --}}
-        {{-- ====================================================== --}}
         <div class="overflow-x-auto">
 
             <table class="w-full border-collapse">
 
                 {{-- HEADER TABEL --}}
                 <thead>
-
                     <tr class="bg-slate-800 text-white">
 
                         {{-- FOTO --}}
@@ -103,30 +100,25 @@
                             Foto
                         </th>
 
-
                         {{-- NAMA --}}
                         <th class="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide border-b border-slate-700 whitespace-nowrap">
                             Nama
                         </th>
-
 
                         {{-- EMAIL --}}
                         <th class="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide border-b border-slate-700 whitespace-nowrap">
                             Email
                         </th>
 
-
                         {{-- ROLE --}}
                         <th class="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wide border-b border-slate-700 whitespace-nowrap">
                             Role / Hak Akses
                         </th>
 
-
                         {{-- NO HP --}}
                         <th class="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wide border-b border-slate-700 whitespace-nowrap">
                             No. HP
                         </th>
-
 
                         {{-- AKSI --}}
                         <th class="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wide border-b border-slate-700 whitespace-nowrap">
@@ -134,9 +126,7 @@
                         </th>
 
                     </tr>
-
                 </thead>
-
 
                 {{-- ISI TABEL --}}
                 <tbody class="text-sm text-gray-700">
@@ -166,18 +156,15 @@
 
                             </td>
 
-
                             {{-- NAMA --}}
                             <td class="py-3 px-4 text-left align-middle font-medium text-gray-900 whitespace-nowrap">
                                 {{ $user->name }}
                             </td>
 
-
                             {{-- EMAIL --}}
                             <td class="py-3 px-4 text-left align-middle text-gray-700">
                                 {{ $user->email }}
                             </td>
-
 
                             {{-- ROLE --}}
                             <td class="py-3 px-4 text-center align-middle">
@@ -200,12 +187,10 @@
 
                             </td>
 
-
                             {{-- NO HP --}}
                             <td class="py-3 px-4 text-center align-middle whitespace-nowrap">
                                 {{ $user->no_hp ?? '-' }}
                             </td>
-
 
                             {{-- AKSI --}}
                             <td class="py-3 px-4 text-center align-middle">
@@ -219,7 +204,6 @@
                                     >
                                         Edit
                                     </a>
-
 
                                     {{-- HAPUS --}}
                                     <form
@@ -246,18 +230,15 @@
 
                         </tr>
 
-
                     @empty
 
                         <tr>
-
                             <td
                                 colspan="6"
                                 class="py-8 px-4 text-center text-gray-500"
                             >
                                 Belum ada data pengguna.
                             </td>
-
                         </tr>
 
                     @endforelse
@@ -268,10 +249,7 @@
 
         </div>
 
-
-        {{-- ====================================================== --}}
         {{-- PAGINATION --}}
-        {{-- ====================================================== --}}
         <div class="px-5 py-4 border-t border-gray-200 bg-gray-50">
 
             {{ $users->links() }}

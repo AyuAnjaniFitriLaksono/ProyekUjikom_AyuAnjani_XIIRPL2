@@ -49,8 +49,9 @@
         <tr>
             <td class="text-center">{{ $index + 1 }}</td>
             <td>{{ $item->user->name ?? '-' }}</td>
-            <td>{{ $item->tgl_pinjam }}</td>
-            <td>{{ $item->tgl_kembali_plan }}</td>
+            <td>{{ $item->tgl_pinjam ? \Carbon\Carbon::parse($item->tgl_pinjam)->format('d-m-Y') : '-' }}</td>
+            <td>{{ $item->tgl_kembali_plan ? \Carbon\Carbon::parse($item->tgl_kembali_plan)->format('d-m-Y') : '-' }}</td>
+        
             <td>{{ ucfirst($item->status) }}</td>
             <td>
                 <ul style="margin: 0; padding-left: 15px;">

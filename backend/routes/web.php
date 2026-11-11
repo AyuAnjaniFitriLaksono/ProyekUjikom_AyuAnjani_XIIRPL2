@@ -238,6 +238,12 @@ Route::middleware(['auth', 'role.peminjam'])
         Route::post('/peminjaman/ajukan', [PeminjamController::class, 'ajukanPeminjaman'])
             ->name('peminjaman.ajukan');
 
+            
+        // ==================== AJUKAN PENGEMBALIAN ====================
+
+        Route::post('/pengembalian/ajukan/{id}', [PeminjamController::class, 'ajukanPengembalian'])
+            ->name('pengembalian.ajukan');
+
 
         // ==================== RIWAYAT PEMINJAMAN ====================
 

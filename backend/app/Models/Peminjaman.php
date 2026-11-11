@@ -12,25 +12,33 @@ class Peminjaman extends Model
     protected $table = 'peminjaman';
 
     protected $fillable = [
-        'user_id', 'tgl_pinjam', 'tgl_kembali_plan', 'status'
+        'user_id',
+        'tgl_pinjam',
+        'tgl_kembali_plan',
+        'status',
+        'status_pengajuan_kembali',
     ];
 
-    protected function casts(): array {
+    protected function casts(): array
+    {
         return [
             'tgl_pinjam' => 'date:Y-m-d',
             'tgl_kembali_plan' => 'date:Y-m-d',
         ];
     }
 
-    public function user(): BelongsTo {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function detailPinjams(): HasMany {
+    public function detailPinjams(): HasMany
+    {
         return $this->hasMany(DetailPinjam::class);
     }
 
-    public function pengembalian(): HasOne {
-        return $this->hasOne(Pengembalian::class);
+    public function pengembalian(): HasOne
+    {
+        return $this->hasOne(Pengembalian::class)->latestOfMany('id');
     }
 }

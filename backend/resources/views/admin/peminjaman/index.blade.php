@@ -225,8 +225,7 @@
                                         </span>
 
                                         <span class="font-medium text-gray-700">
-                                            {{ $peminjaman->tgl_pinjam ?? '-' }}
-                                        </span>
+                                            {{ $peminjaman->tgl_pinjam ? \Carbon\Carbon::parse($peminjaman->tgl_pinjam)->format('d-m-Y') : '-' }}
                                     </div>
 
                                     <div class="whitespace-nowrap">
@@ -235,7 +234,7 @@
                                         </span>
 
                                         <span class="font-semibold text-gray-800">
-                                            {{ $peminjaman->tgl_kembali_plan ?? '-' }}
+                                            {{ $peminjaman->tgl_kembali_plan ? \Carbon\Carbon::parse($peminjaman->tgl_kembali_plan)->format('d-m-Y') : '-' }}
                                         </span>
                                     </div>
 
